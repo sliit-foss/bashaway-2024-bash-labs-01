@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root@12345"  # Change to a strong root password
+        - name: MYSQL_DATABASE
+          value: "demo"           # Change to your preferred database name
+        - name: MYSQL_USER
+          value: "demo_user"      # Change to your desired MySQL username
+        - name: MYSQL_PASSWORD
+          value: "demo@1234"       # Set a secure password for the MySQL user
+        ports:
+        - containerPort: 3306
+          name: mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql

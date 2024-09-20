@@ -1,0 +1,8 @@
+image:
+  repository: dtl1976/my-flask-app
+  tag: latest
+
+mysql:
+  host: mysql
+  db: demo
+secretName: mysql-secret

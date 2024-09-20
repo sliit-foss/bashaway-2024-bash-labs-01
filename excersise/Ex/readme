@@ -1,0 +1,8 @@
+kubectl get pods
+# create nginx pod
+kubectl run nginx --image=nginx
+# how to find what is the image used to create this pod
+kubectl describe   pod newpods-v6c47
+
+which node the pod created
+kubectl config get-contexts

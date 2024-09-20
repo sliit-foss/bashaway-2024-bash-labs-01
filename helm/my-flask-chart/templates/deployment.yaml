@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-flask-chart.fullname" . }}
+  labels:
+    {{- include "my-flask-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "my-flask-chart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "my-flask-chart.name" . }}
+    spec:
+      containers:
+      - name: flask-app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MYSQL_HOST
+          value: "{{ .Values.mysql.host }}"
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretName }}
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretName }}
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DB
+          value: "{{ .Values.mysql.db }}"
+      imagePullSecrets:
+      - name: regcred

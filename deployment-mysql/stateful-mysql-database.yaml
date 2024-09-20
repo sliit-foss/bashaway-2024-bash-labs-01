@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet  # <-- Changed from Deployment to StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: "mysql"  # <-- StatefulSets require a serviceName for stable network identity
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root@12345"
+        - name: MYSQL_DATABASE
+          value: "demo"
+        - name: MYSQL_USER
+          value: "demo_user"
+        - name: MYSQL_PASSWORD
+          value: "demo@1234"
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql   # This is the default MySQL data directory
+  volumeClaimTemplates:  # <-- StatefulSet manages PVCs via templates
+  - metadata:
+      name: mysql-persistent-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Mi  # Adjust the size as needed
+---
+apiVersion: v1
+kind: PersistentVolumeClaim  # <-- This part is removed because StatefulSet creates PVCs automatically
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
